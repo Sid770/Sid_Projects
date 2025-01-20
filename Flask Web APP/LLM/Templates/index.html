@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Disease Assistant</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        /* Custom styling for the cool hyperlink */
+        .cool-link {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #28a745;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .cool-link:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .cool-link:focus {
+            outline: none;
+        }
+
+        /* Additional styling */
+        .form-container {
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            margin-right: auto; /* Align left */
+        }
+
+        h1, h2 {
+            color: #28a745;
+        }
+
+        .response {
+            background-color: #e9f7ef;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        /* Voice button styling */
+        .voice-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: block;
+        }
+
+        .voice-btn:focus {
+            outline: none;
+        }
+
+        .voice-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Styling for the scrollable tweets section */
+        .tweets-container {
+            height: 250px; /* Set a fixed height for uniformity */
+            width: 300px; /* Set a fixed width */
+            overflow-y: scroll; 
+            padding: 15px; /* Adjusted padding */
+            border: 2px solid #28a745; 
+            border-radius: 10px; 
+            background-color: #f9f9f9; 
+            margin-bottom: 20px; 
+        }
+
+        .tweet {
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tweet:last-child {
+            border-bottom: none;
+        }
+
+        .scrollable {
+            overflow-y: scroll; 
+            height: 100px; /* Decreased height */
+        }
+
+        /* Styling for the response text */
+        .response-text {
+            white-space: pre-wrap;  /* Ensures formatting from the response */
+        }
+
+        /* Flexbox for aligning tweet boxes */
+        .tweets-wrapper {
+            display: flex;
+            flex-direction: column; /* Stack tweet boxes vertically */
+            align-items: flex-end; /* Align tweet boxes to the right */
+            margin-left: auto; /* Pushes the tweets to the right */
+        }
+
+        .tweet-row {
+            margin-bottom: 20px; /* Space between rows */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <a class="navbar-brand mx-auto" href="#">KisanSarthi Assistant</a>
+    </nav>
+
+    <div class="container mt-5">
+        <!-- Cool hyperlink to go back to KisanSarthi homepage -->
+        <a href="https://b18f-103-157-53-200.ngrok-free.app" class="cool-link">Back to KisanSarthi Homepage</a>
+
+        <!-- KisanSarthi Assistant title -->
+        <h1 class="text-center mt-3">KisanSarthi Assistant</h1>
+
+        <div class="row">
+            <!-- Form container -->
+            <div class="col-md-6">
+                <div class="form-container mt-4">
+                    <form method="post">
+                        <div class="form-group">
+                            <label for="city">City:</label>
+                            <input type="text" id="city" name="city" class="form-control" placeholder="Enter your city" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="state">State:</label>
+                            <input type="text" id="state" name="state" class="form-control" placeholder="Enter your state" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="language">Select Language:</label>
+                            <select id="language" class="form-control" onchange="updatePlaceholder()">
+                                <option value="hi-IN">Hindi</option>
+                                <option value="en-IN">English</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="question">Enter your question:</label>
+                            <textarea id="question" name="question" rows="4" class="form-control" required></textarea>
+                            <!-- Voice button -->
+                            <button type="button" class="voice-btn" id="voice-btn">Speak your question</button>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="tweets-wrapper">
+                    <!-- Tweets container for DD Kisan -->
+                    <div class="tweets-container">
+                        <h2>Latest Tweets from DD Kisan:</h2>
+                        <div class="scrollable">
+                            {% for tweet in tweet_list %}
+                                <div class="tweet">
+                                    <p>{{ tweet }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- New tweets container for Agriculture Department -->
+                    <div class="tweets-container">
+                        <h2>Latest Tweets from Agriculture Department:</h2>
+                        <div class="scrollable">
+                            {% for tweet in agri_tweet_list %}
+                                <div class="tweet">
+                                    <p>{{ tweet }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+        
+        <!-- Response section -->
+        <div class="response mt-4">
+            <h2>Response:</h2>
+            <p class="response-text">{{ response|safe }}</p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- JavaScript for voice recognition -->
+    <script>
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            const voiceButton = document.getElementById('voice-btn');
+            const questionInput = document.getElementById('question');
+
+            // Set up recognition settings
+            recognition.continuous = false;
+
+            // Start voice recognition when the button is clicked
+            voiceButton.addEventListener('click', () => {
+                recognition.start();
+                voiceButton.textContent = "Listening...";
+            });
+
+            // When recognition returns a result
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                questionInput.value = transcript;  // Insert the transcribed text into the textarea
+
+                // Set the language based on the detected transcript
+                const hindiRegex = /[अ-ह]/; // Simple regex to check for Hindi characters
+                const selectedLanguage = hindiRegex.test(transcript) ? 'hi-IN' : 'en-IN';
+                recognition.lang = selectedLanguage; // Update recognition language based on input
+                voiceButton.textContent = "Speak your question";  // Reset button text
+            };
+
+            // Handle errors
+            recognition.onerror = function(event) {
+                console.error(event.error);
+                voiceButton.textContent = "Speak your question";  // Reset button text
+            };
+
+            // Stop recognition when it ends
+            recognition.onend = function() {
+                voiceButton.textContent = "Speak your question";  // Reset button text
+            };
+        } else {
+            console.error("Speech recognition not supported in this browser.");
+            alert("Your browser does not support speech recognition. Please use Google Chrome.");
+        }
+
+        // Function to update the placeholder based on selected language
+        function updatePlaceholder() {
+            const languageSelect = document.getElementById('language');
+            const questionInput = document.getElementById('question');
+            if (languageSelect.value === 'hi-IN') {
+                questionInput.placeholder = "आपका प्रश्न यहाँ डालें"; // "Enter your question here" in Hindi
+            } else {
+                questionInput.placeholder = "Enter your question here"; // English placeholder
+            }
+        }
+
+        // Initialize the placeholder on page load
+        window.onload = updatePlaceholder;
+    </script>
+</body>
+</html>
