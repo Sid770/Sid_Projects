@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Disease Prediction</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        /* Custom styling for the cool hyperlink */
+        .cool-link {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.3s;
+            margin-left: 10px;
+        }
+
+        .cool-link:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .cool-link:focus {
+            outline: none;
+        }
+
+        /* Left align and style the predictions */
+        .predictions {
+            text-align: left;
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            font-family: Georgia, serif;
+        }
+
+        .predictions p {
+            margin: 10px 0;
+            color: #333;
+            font-family: Helvetica, serif;
+        }
+
+        .highlight {
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .navbar-nav.ml-auto {
+            margin-left: auto; /* Aligns the "About" link to the right */
+        }
+
+        .nav-link {
+            font-size: 18px; /* Adjust the font size to make it bigger */
+            color: #013f10 !important; /* Change the color of the "About" link */
+            font-weight: bold; /* Optional: makes the font bold */
+        }
+
+        .nav-link:hover {
+            color: #013f10 !important; /* Optional: changes color on hover */
+        }
+
+        .navbar-toggler {
+            background-color: #013f10; /* Set the button color */
+        }
+
+        .navbar-toggler-icon {
+            background-color: rgb(0, 0, 0); /* Optional: changes the icon color for better contrast */
+        }
+
+        /* General container styling for responsive layout */
+        .container {
+            max-width: 100%;
+            padding: 15px;
+            margin: 0 auto;
+        }
+
+        /* Image resizing for mobile and desktop */
+        img#selected-image {
+            max-width: 90%; /* Adjusts width dynamically */
+            height: auto; /* Keeps aspect ratio */
+        }
+
+        /* Responsive button alignment */
+        button#predict-button {
+            width: 100%; /* Full width on smaller devices */
+            max-width: 300px; /* Restrict width on larger screens */
+            font-size: 16px;
+        }
+
+        @media (min-width: 768px) {
+            /* Desktop styles */
+            img#selected-image {
+                max-width: 300px; /* Larger images on wider screens */
+            }
+
+            button#predict-button {
+                max-width: 200px;
+                font-size: 18px;
+            }
+
+            .navbar-brand {
+                font-size: 28px; /* Bigger navbar brand on desktops */
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="#">KisanSarthi</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="cool-link nav-link" href=" https://cd65-103-157-53-165.ngrok-free.app">About Us</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    
+    
+    
+
+    <div class="container">
+        <h1 class="text-center mt-4">KisanSarthi</h1>
+
+        <!-- Image Selector and Predict Button -->
+        <div class="form-group text-center">
+            <input id="image-selector" type="file" accept="image/*" class="form-control-file">
+        </div>
+        <button id="predict-button" class="btn btn-primary mb-3 d-block mx-auto">Predict</button>
+
+        <!-- Display Selected Image -->
+        <img id="selected-image" src="" alt="Selected Image" class="img-fluid d-block mx-auto" style="max-width: 300px;" />
+
+        <!-- Predictions Section -->
+        <div class="predictions">
+            <p>Predicted values for the crop diseases are as follows:</p>
+            <div id="prediction-list"></div> <!-- This div will hold the sorted predictions -->
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        let base64Image = '';
+
+        $("#image-selector").change(function() {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let dataURL = reader.result;
+                $('#selected-image').attr("src", dataURL);
+                base64Image = dataURL.replace(/^data:image\/[a-z]+;base64,/, "");
+            }
+            reader.readAsDataURL($("#image-selector")[0].files[0]);
+            // Reset predictions
+            $("#prediction-list").empty();
+            $("a.cool-link").remove(); // Remove any previous cool links
+        });
+
+        $("#predict-button").click(function() {
+            if (!base64Image) {
+                alert("Please select an image first.");
+                return;
+            }
+
+            let message = { image: base64Image };
+            $.ajax({
+                url: "http://127.0.0.1:8000/predict",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(message),
+                success: function(response) {
+                    let predictions = [];
+                    let maxPrediction = -1;
+                    let maxClass = '';
+
+                    // Collect predictions and track the highest prediction
+                    for (let key in response.prediction) {
+                        if (response.prediction.hasOwnProperty(key)) {
+                            let predictionValue = parseFloat(response.prediction[key].toFixed(6));
+                            predictions.push({ class: key, value: predictionValue });
+
+                            // Check for the highest prediction value
+                            if (predictionValue > maxPrediction) {
+                                maxPrediction = predictionValue;
+                                maxClass = key.replace(/\s+/g, '_');
+                            }
+                        }
+                    }
+
+                    // Sort predictions in descending order based on prediction values
+                    predictions.sort((a, b) => b.value - a.value);
+
+                    // Display predictions
+                    predictions.forEach(pred => {
+                        let predictionText = `${pred.class.replace(/_/g, ' ')}: <span class="highlight">${pred.value}</span>`;
+                        let predictionHTML = `<p id="${pred.class.replace(/\s+/g, '_')}-prediction">${predictionText}</p>`;
+                        $("#prediction-list").append(predictionHTML);
+                    });
+
+                    // Remove any existing cool links
+                    $("a.cool-link").remove();
+
+                    // Add the cool hyperlink next to the highest predicted class
+                    if (maxClass) {
+                        $(`#${maxClass}-prediction .highlight`).after(
+                            `<a href="https://4690-103-157-53-200.ngrok-free.app " class="cool-link">Go to KisanSarthi Assistant</a>`
+                        );
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error("Error: " + textStatus, errorThrown);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
