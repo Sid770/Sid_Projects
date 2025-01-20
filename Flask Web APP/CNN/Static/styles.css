@@ -1,0 +1,131 @@
+/* styles.css */
+
+/* General styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* Navbar styling */
+.navbar {
+    background-color: #27ae60;
+}
+
+.navbar-brand {
+    color: white !important;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.navbar-toggler {
+    border-color: white;
+}
+
+.navbar-toggler-icon {
+    background-color: white;
+}
+
+/* Image selector and button styling */
+.form-group {
+    text-align: center;
+    margin: 20px 0;
+}
+
+#image-selector {
+    margin: 10px auto;
+    max-width: 300px;
+}
+
+#predict-button {
+    background-color: #2980b9;
+    color: white;
+    font-size: 1.1rem;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+#predict-button:hover {
+    background-color: #3498db;
+}
+
+/* Image display styling */
+#selected-image {
+    display: block;
+    margin: 20px auto;
+    max-width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Prediction results styling */
+.predictions {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+    text-align: left;
+    max-width: 600px;
+    margin: auto;
+}
+
+.predictions p {
+    font-size: 1rem;
+    color: #2c3e50;
+    margin: 5px 0;
+}
+
+.predictions span {
+    font-weight: bold;
+    color: #27ae60;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    #predict-button {
+        font-size: 1rem;
+        padding: 8px 16px;
+    }
+
+    .predictions {
+        padding: 15px;
+        font-size: 0.9rem;
+    }
+}
+.navbar-nav.ml-auto {
+    margin-left: auto; /* Aligns the "About" link to the right */
+}
+
+.nav-link {
+    font-size: 83px; /* Adjust the font size to make it bigger */
+    color: #0d2f15 !important; /* Change the color of the "About" link */
+    font-weight: bold; /* Optional: makes the font bold */
+}
+
+.nav-link:hover {
+    color: #0d2f15 !important; /* Optional: changes color on hover */
+}
+
+.navbar-toggler {
+    background-color: #0d2f15; /* Set the button color */
+}
+
+.navbar-toggler-icon {
+    background-color: rgb(0, 0, 0); /* Optional: changes the icon color for better contrast */
+}
+
